@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagnóstico Rápido - JL Suporte Técnico</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f7f9; /* Cor de fundo suave */
+            text-align: center;
+            padding: 20px;
+            color: #333; /* Texto escuro para boa legibilidade */
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.05); /* Sombra suave */
+            max-width: 450px;
+            margin: auto;
+        }
+        .progress {
+            width: 90%;
+            margin: 10px auto;
+            height: 8px;
+            background: #e0e0e0; /* Fundo neutro para a barra de progresso */
+            border-radius: 5px;
+        }
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: #62a3f2; /* Azul claro para a barra de progresso */
+            border-radius: 5px;
+            transition: width 0.3s;
+        }
+        .question, .final-message, .problem-description {
+            display: none;
+            margin-bottom: 15px;
+        }
+        .btn {
+            background-color: #62a3f2; /* Azul suave */
+            color: white;
+            padding: 12px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 8px;
+            border-radius: 20px;
+            width: 80%;
+            display: inline-block;
+            transition: background-color 0.3s ease;
+        }
+        .btn:hover { background-color: #4c8ec2; } /* Azul mais escuro no hover */
+        textarea {
+            width: 90%;
+            height: 80px;
+            border-radius: 10px;
+            padding: 8px;
+            border: 1px solid #ccc; /* Bordas neutras */
+            font-size: 14px;
+            color: #555; /* Texto suave */
+        }
+        .button-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        .solution {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #777; /* Texto mais suave para a solução */
+        }
+        .final-message {
+            margin-top: 20px;
+            font-size: 18px;
+            color: #333; /* Texto mais escuro para a mensagem final */
+        }
+        h1 span {
+            color: #62a3f2; /* Cor azul clara para o título */
+        }
+        /* Adicionando o botão para o game.html */
+        .btn-game {
+            display: block;
+            width: 200px;
+            margin: 30px auto;
+            padding: 15px;
+            text-align: center;
+            background-color: #4CAF50; /* Cor do botão */
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        .btn-game:hover {
+            background-color: #45a049; /* Cor ao passar o mouse */
+        }
+    </style>
+</head>
+<body>
+
+    <h1><span>🛠 Diagnóstico Rápido</span><br><span>JL Suporte Técnico</span></h1>
+    <div class="container">
+        
+        <div class="progress"><div class="progress-bar" id="progress-bar"></div></div>
+
+        <div id="question-container"></div>
+
+        <div class="final-message">
+            <h2>🎉 Obrigado por confiar na JL Suporte Técnico!</h2>
+            <p>Se nosso diagnóstico foi útil, siga nossa página no Instagram e compartilhe com seus amigos!</p>
+            <a href="https://www.instagram.com/jl_vendas_on" target="_blank" class="btn">📸 Visitar Instagram</a>
+            <button class="btn" onclick="checkProblem()">❓ Ainda com problemas?</button>
+            <a href="https://wa.me/557799081729" target="_blank" class="btn">💬 Falar no WhatsApp</a>
+        </div>
+
+        <div class="problem-description">
+            <p>📝 Descreva o problema que ainda persiste:</p>
+            <textarea id="descricao"></textarea>
+            <button class="btn" onclick="sendToWhatsApp()">📩 Enviar diagnóstico via WhatsApp</button>
+        </div>
+
+        <!-- Botão para a página game.html -->
+        <a href="game.html" class="btn-game">🎮 Jogue campo minado e ganhe desconto</a>
+        
+    </div>
+
+    <script>
+        let questions = [
+            { question: "🔇 Seu computador está sem som?", solution: "Verifique se o volume está ativado e se os drivers de áudio estão instalados corretamente." },
+            { question: "🐢 O sistema está travando ou muito lento?", solution: "Tente limpar arquivos temporários e verificar se há muitos programas abertos ao mesmo tempo." },
+            { question: "⚠️ Alguma tela de erro aparece ao tentar ligar?", solution: "Anote o código do erro e tente reiniciar o computador no modo de segurança." },
+            { question: "🔥 O computador esquenta muito ou desliga sozinho?", solution: "Verifique se os coolers estão funcionando e se há poeira bloqueando a ventilação." },
+            { question: "💾 O HD ou SSD faz barulhos estranhos?", solution: "Faça backup urgente dos seus arquivos, pode ser sinal de falha no disco." },
+            { question: "📡 O Wi-Fi está desconectando com frequência?", solution: "Reinicie o roteador e verifique se o driver da placa de rede está atualizado." },
+            { question: "📠 As portas USB não reconhecem dispositivos?", solution: "Tente conectar outro dispositivo e verifique se as portas estão funcionando corretamente." },
+            { question: "🔌 O notebook não está carregando?", solution: "Teste outro carregador e verifique se o conector de energia está solto ou danificado." },
+            { question: "📷 A webcam não funciona?", solution: "Verifique se o driver está atualizado e se a câmera não está desativada nas configurações." },
+            { question: "🔑 O teclado ou mouse pararam de funcionar?", solution: "Teste outro dispositivo para ver se o problema é do hardware ou do sistema." }
+        ];
+
+        let currentStep = 0;
+        let answers = [];
+        let hasProblem = false;
+
+        function loadQuestion() {
+            if (currentStep < questions.length) {
+                let questionHTML = `
+                    <div class="question" id="question${currentStep}">
+                        <p>${questions[currentStep].question}</p>
+                        <button class="btn" onclick="saveAnswer('${questions[currentStep].question}', 'Sim', '${questions[currentStep].solution}')">✅ Sim</button>
+                        <button class="btn" onclick="saveAnswer('${questions[currentStep].question}', 'Não')">❌ Não</button>
+                        <p id="solution${currentStep}" class="solution" style="display:none;"></p>
+                        <div class="button-container">
+                            <button class="btn" id="next-btn${currentStep}" style="display:none;" onclick="nextQuestion()">➡️ Próxima Pergunta</button>
+                        </div>
+                    </div>`;
+                document.getElementById("question-container").innerHTML = questionHTML;
+                document.getElementById(`question${currentStep}`).style.display = "block";
+                updateProgress();
+            } else {
+                document.getElementById("question-container").style.display = "none";
+                document.querySelector(".final-message").style.display = "block";
+                updateProgress(true);
+            }
+        }
+
+        function saveAnswer(question, answer, solution = "") {
+            answers.push({ question, answer });
+            if (answer === "Sim") {
+                hasProblem = true;
+                document.getElementById(`solution${currentStep}`).innerText = "🔹 " + solution;
+                document.getElementById(`solution${currentStep}`).style.display = "block";
+                document.getElementById(`next-btn${currentStep}`).style.display = "block";
+            } else {
+                nextQuestion();
+            }
+        }
+
+        function nextQuestion() {
+            currentStep++;
+            loadQuestion();
+        }
+
+        function updateProgress(complete = false) {
+            let progressBar = document.getElementById('progress-bar');
+            let stepPercent = complete ? 100 : (currentStep / (questions.length + 1)) * 100;
+            progressBar.style.width = stepPercent + "%";
+        }
+
+        function checkProblem() {
+            if (hasProblem) {
+                document.querySelector(".problem-description").style.display = "block";
+            } else {
+                alert("Parece que seu computador não tem problemas graves. Se precisar de mais ajuda, entre em contato!");
+            }
+        }
+
+        function sendToWhatsApp() {
+            let descricao = document.getElementById("descricao").value;
+            let message = "Respostas do Diagnóstico:\n";
+            answers.forEach(ans => message += `- ${ans.question} ${ans.answer}\n`);
+            if (descricao) message += `\nDescrição adicional: ${descricao}`;
+            let whatsappUrl = `https://wa.me/557799081729?text=${encodeURIComponent(message)}`;
+            window.open(whatsappUrl, "_blank");
+        }
+
+        loadQuestion();
+    </script>
+
+</body>
+</html>
